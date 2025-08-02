@@ -34,7 +34,8 @@ const UniversalReader: React.FC = () => {
   const [inputMessage, setInputMessage] = useState<string>('');
   const [isProcessingFiles, setIsProcessingFiles] = useState<boolean>(false);
   const chatContainerRef = useRef<HTMLDivElement>(null);
-  const universalWorkspaceId = "universal-reader-workspace-id-002"; // Hardcoded ID for this workspace
+  // Hardcoded ID for this workspace, matches backend placeholder
+  const universalWorkspaceId = "universal-reader-workspace-id-002";
 
   useEffect(() => {
     if (chatContainerRef.current) {
@@ -42,29 +43,37 @@ const UniversalReader: React.FC = () => {
     }
   }, [messages]);
 
+  // Function to handle file uploads
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>): Promise<void> => {
     const files = event.target.files;
     if (!files || files.length === 0) return;
 
-    const newFiles: UploadedFile[] = Array.from(files).map(file => ({
+    // Create a new array of files to upload
+    const filesToUpload: File[] = Array.from(files);
+    
+    // Create a temporary state for files to show in UI
+    const newFiles: UploadedFile[] = filesToUpload.map(file => ({
       id: `file-${Date.now()}-${Math.random()}`,
       name: file.name,
       type: file.type,
       size: file.size,
       status: 'pending',
     }));
-
     setUploadedFiles((prev) => [...prev, ...newFiles]);
-    setIsProcessingFiles(true);
 
-    for (const file of newFiles) {
-      setMessages((prev) => [...prev, { id: `msg-${Date.now()}`, type: 'system', text: `Uploading and processing "${file.name}"...`, timestamp: new Date().toLocaleTimeString() }]);
+    setIsProcessingFiles(true); // Start global processing indicator
+
+    for (const file of filesToUpload) {
+      // Added unique ID for each message to avoid key conflicts
+      setMessages((prev) => [...prev, { id: `msg-${Date.now()}-${file.name}`, type: 'system', text: `Uploading and processing "${file.name}"...`, timestamp: new Date().toLocaleTimeString() }]);
 
       const formData = new FormData();
-      formData.append('file', file as unknown as Blob);
-      formData.append('workspaceId', universalWorkspaceId); // Send hardcoded workspace ID
+      // The as unknown as Blob cast is unnecessary and could cause issues. Reverted to a direct append.
+      formData.append('file', file);
+      formData.append('workspaceId', universalWorkspaceId); // Ensure workspaceId is also sent
 
       try {
+        // Send a request for each file
         const response = await fetch('http://localhost:5000/api/universal-upload', {
           method: 'POST',
           body: formData,
@@ -76,24 +85,27 @@ const UniversalReader: React.FC = () => {
         }
 
         const data = await response.json();
+        // Updated the state update logic to be more reliable by matching file name instead of a potentially stale ID
         setUploadedFiles((prev) =>
-          prev.map((f) => f.id === file.id ? { ...f, status: 'processed', documentId: data.documentId } : f)
+          prev.map((f) => f.name === file.name ? { ...f, status: 'processed', documentId: data.documentId } : f)
         );
-        setMessages((prev) => [...prev, { id: `msg-${Date.now()}`, type: 'system', text: `"${file.name}" processed successfully!`, timestamp: new Date().toLocaleTimeString() }]);
+        // Added unique ID for each message to avoid key conflicts
+        setMessages((prev) => [...prev, { id: `msg-${Date.now()}-${file.name}-success`, type: 'system', text: `"${file.name}" processed successfully!`, timestamp: new Date().toLocaleTimeString() }]);
       } catch (error: any) {
         console.error("File upload error:", error);
-        setUploadedFiles((prev) => prev.map((f) => (f.id === file.id ? { ...f, status: 'failed' } : f)));
-        setMessages((prevMessages) => [...prevMessages, { id: `msg-${Date.now()}`, type: 'system', text: `Error processing "${file.name}": ${error.message || 'Unknown error'}`, timestamp: new Date().toLocaleTimeString() }]);
+        setUploadedFiles((prev) => prev.map((f) => (f.name === file.name ? { ...f, status: 'failed' } : f)));
+        // Ensure messages are updated in a closure that prevents stale state issues.
+        setMessages((prevMessages) => [...prevMessages, { id: `msg-${Date.now()}-${file.name}-error`, type: 'system', text: `Error processing "${file.name}": ${error.message || 'Unknown error'}`, timestamp: new Date().toLocaleTimeString() }]);
       }
     }
     setIsProcessingFiles(false);
   };
 
-  const getAiResponse = async (userQuery: string, processedDocIds: string[]): Promise<any> => {
+  const getAiResponse = async (userQuery: string): Promise<any> => {
     try {
       const payload = {
         query: userQuery,
-        workspaceId: universalWorkspaceId, // Send hardcoded workspace ID
+        workspaceId: universalWorkspaceId,
       };
 
       const response = await fetch('http://localhost:5000/api/universal-qa', {
@@ -106,11 +118,10 @@ const UniversalReader: React.FC = () => {
         const errorData = await response.json();
         throw new Error(errorData.message || 'Failed to get AI response.');
       }
-
       return await response.json();
     } catch (error: any) {
       console.error("AI chat error:", error);
-      return { analysisText: `Error: ${error.message || 'Could not get a response from AI.'}`, sources: [], nextSteps: [] };
+      return { answer: `Error: ${error.message || 'Could not get a response from AI.'}`, citations: [], nextSteps: [] };
     }
   };
 
@@ -118,8 +129,6 @@ const UniversalReader: React.FC = () => {
     if (inputMessage.trim() === '') return;
 
     const userQuery = inputMessage.trim();
-    const processedDocIds = uploadedFiles.filter(f => f.status === 'processed' && f.documentId).map(f => f.documentId!);
-
     const newUserMessage: Message = { id: `msg-${Date.now()}`, type: 'user', text: userQuery, timestamp: new Date().toLocaleTimeString() };
     setMessages((prevMessages) => [...prevMessages, newUserMessage]);
     setInputMessage('');
@@ -127,7 +136,7 @@ const UniversalReader: React.FC = () => {
     const aiLoadingMessageId = `msg-${Date.now()}-loading`;
     setMessages((prevMessages) => [...prevMessages, { id: aiLoadingMessageId, type: 'ai', text: '...', loading: true, timestamp: new Date().toLocaleTimeString() }]);
 
-    const aiResponseContent = await getAiResponse(userQuery, processedDocIds);
+    const aiResponseContent = await getAiResponse(userQuery);
 
     setMessages((prevMessages) => {
       const updatedMessages = [...prevMessages];
