@@ -1,3 +1,5 @@
+// src/components/TeamWorkspace.tsx
+
 "use client";
 
 import React, { useState, useRef, useEffect } from 'react';
@@ -10,9 +12,9 @@ interface Message {
   timestamp: string;
   sender: string; // e.g., 'User A', 'AI'
   sources?: string[]; // For AI responses
-  loading?: boolean; // For AI typing indicator
   threadId?: string; // To group messages into threads (e.g., AI response and its follow-ups)
   isReply?: boolean; // To visually indent replies
+  loading?: boolean; // To indicate if the AI message is currently being generated
 }
 
 interface UploadedFile {
@@ -51,77 +53,113 @@ const TeamWorkspace: React.FC = () => {
   // --- Workspace Management ---
   const handleCreateWorkspace = async (): Promise<void> => {
     if (workspaceNameInput.trim() === '') return;
-
-    // Simulate API call to create workspace
-    const newWorkspaceId = `ws-${Date.now()}`;
-    const newInviteLink = `${window.location.origin}/join-workspace?id=${newWorkspaceId}`;
-
-    const newWorkspace: Workspace = {
-      id: newWorkspaceId,
-      name: workspaceNameInput.trim(),
-      inviteLink: newInviteLink,
-      members: [currentUser],
-      files: [],
-    };
-
-    setCurrentWorkspace(newWorkspace);
+    
     setMessages((prev) => [
       ...prev,
-      {
-        id: `msg-${Date.now()}`,
-        type: 'system',
-        text: `Workspace "${newWorkspace.name}" created! Share this link to invite others: ${newInviteLink}`,
-        timestamp: new Date().toLocaleTimeString(),
-        sender: 'System',
-      },
+      { id: `msg-${Date.now()}`, type: 'system', text: `Creating workspace "${workspaceNameInput}"...`, timestamp: new Date().toLocaleTimeString(), sender: 'System' },
     ]);
-    setWorkspaceNameInput('');
+
+    try {
+      const response = await fetch('http://localhost:5000/api/workspaces/create', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ workspaceName: workspaceNameInput.trim() }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to create workspace.');
+      }
+
+      const data = await response.json();
+      const newWorkspace: Workspace = {
+        id: data.workspaceId,
+        name: workspaceNameInput.trim(),
+        inviteLink: data.inviteLink,
+        members: [currentUser], // Start with the current user
+        files: [], // Initially no files
+      };
+
+      setCurrentWorkspace(newWorkspace);
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: `msg-${Date.now()}-success`,
+          type: 'system',
+          text: `Workspace "${newWorkspace.name}" created! Share this link to invite others: ${newWorkspace.inviteLink}`,
+          timestamp: new Date().toLocaleTimeString(),
+          sender: 'System',
+        },
+      ]);
+      setWorkspaceNameInput('');
+    } catch (error: any) {
+      console.error('Error creating workspace:', error);
+      setMessages((prev) => [
+        ...prev,
+        { id: `msg-${Date.now()}-error`, type: 'system', text: `Error creating workspace: ${error.message}`, timestamp: new Date().toLocaleTimeString(), sender: 'System' },
+      ]);
+    }
   };
 
   const handleJoinWorkspace = async (): Promise<void> => {
     if (inviteLinkInput.trim() === '') return;
 
-    // Simulate API call to join workspace
-    // In a real app, you'd validate the link and fetch workspace data
-    const workspaceId = inviteLinkInput.split('?id=')[1];
-    if (workspaceId) {
-      const joinedWorkspace: Workspace = { // Simulate fetching existing workspace
-        id: workspaceId,
-        name: `Team Workspace ${workspaceId.substring(4, 8)}`,
-        inviteLink: inviteLinkInput,
-        members: ["User A", "User B", "User C"], // Simulate existing members
-        files: [
-          { id: 'file-1', name: 'Project Brief.pdf', uploadedBy: 'User B', timestamp: '10:00 AM', type: 'pdf' },
-          { id: 'file-2', name: 'Q3 OKRs.txt', uploadedBy: 'User C', timestamp: '10:15 AM', type: 'note' },
-        ],
+    setMessages((prev) => [
+      ...prev,
+      { id: `msg-${Date.now()}`, type: 'system', text: `Attempting to join workspace via link...`, timestamp: new Date().toLocaleTimeString(), sender: 'System' },
+    ]);
+
+    try {
+      // The API expects the inviteLink as a URL parameter
+      const response = await fetch(`http://localhost:5000/api/workspaces/join/${inviteLinkInput.trim()}`, {
+        method: 'GET',
+      });
+
+      if (!response.ok) {
+        throw new Error('Invalid or expired invite link.');
+      }
+
+      const data = await response.json();
+      const joinedWorkspace: Workspace = {
+        id: data.workspaceId,
+        name: data.workspaceName,
+        inviteLink: data.inviteLink,
+        members: ["User A", "User B", "User C"], // Simulate fetching existing members
+        files: [], // Files will be fetched separately
       };
+      
+      // In a real app, you would also fetch the files for this workspace.
+      // For this example, we'll simulate fetching documents as well.
+      const filesResponse = await fetch(`http://localhost:5000/api/workspaces/${data.workspaceId}/documents`);
+      const filesData = await filesResponse.json();
+      joinedWorkspace.files = filesData.documents.map((doc: any) => ({
+        id: doc._id,
+        name: doc.filename,
+        uploadedBy: doc.ownerId || 'Unknown',
+        timestamp: new Date(doc.uploadedAt).toLocaleTimeString(),
+        type: doc.originalType.split('/')[1] || 'unknown',
+      }));
+
       setCurrentWorkspace(joinedWorkspace);
       setMessages((prev) => [
         ...prev,
         {
-          id: `msg-${Date.now()}`,
+          id: `msg-${Date.now()}-success`,
           type: 'system',
           text: `Joined workspace "${joinedWorkspace.name}"!`,
           timestamp: new Date().toLocaleTimeString(),
           sender: 'System',
         },
       ]);
-    } else {
+      setInviteLinkInput('');
+    } catch (error: any) {
+      console.error('Error joining workspace:', error);
       setMessages((prev) => [
         ...prev,
-        {
-          id: `msg-${Date.now()}`,
-          type: 'system',
-          text: 'Invalid invite link.',
-          timestamp: new Date().toLocaleTimeString(),
-          sender: 'System',
-        },
+        { id: `msg-${Date.now()}-error`, type: 'system', text: `Error joining workspace: ${error.message}`, timestamp: new Date().toLocaleTimeString(), sender: 'System' },
       ]);
     }
-    setInviteLinkInput('');
   };
 
-  // --- Collaborative Uploads ---
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>): Promise<void> => {
     const file = event.target.files?.[0];
     if (!file || !currentWorkspace) return;
@@ -129,23 +167,15 @@ const TeamWorkspace: React.FC = () => {
     setUploadingFile(true);
     setMessages((prev) => [
       ...prev,
-      {
-        id: `msg-${Date.now()}`,
-        type: 'system',
-        text: `${currentUser} is uploading and processing "${file.name}"...`,
-        timestamp: new Date().toLocaleTimeString(),
-        sender: 'System',
-      },
+      { id: `msg-${Date.now()}`, type: 'system', text: `${currentUser} is uploading and processing "${file.name}"...`, timestamp: new Date().toLocaleTimeString(), sender: 'System' },
     ]);
 
     const formData = new FormData();
     formData.append('file', file);
-    formData.append('workspaceId', currentWorkspace.id);
-    formData.append('uploadedBy', currentUser);
-
+    formData.append('workspaceId', currentWorkspace.id); // Pass workspaceId with the file
+    
     try {
-      // Simulate API call to backend for file upload and processing
-      const response = await fetch('/api/team-upload', { // Replace with your actual backend endpoint
+      const response = await fetch('http://localhost:5000/api/universal-upload', {
         method: 'POST',
         body: formData,
       });
@@ -157,7 +187,7 @@ const TeamWorkspace: React.FC = () => {
 
       const data = await response.json();
       const newFile: UploadedFile = {
-        id: data.fileId,
+        id: data.documentId, // Use the new documentId from the backend
         name: file.name,
         uploadedBy: currentUser,
         timestamp: new Date().toLocaleTimeString(),
@@ -167,53 +197,32 @@ const TeamWorkspace: React.FC = () => {
       setCurrentWorkspace((prev) => prev ? { ...prev, files: [...prev.files, newFile] } : null);
       setMessages((prev) => [
         ...prev,
-        {
-          id: `msg-${Date.now()}`,
-          type: 'system',
-          text: `"${newFile.name}" uploaded by ${currentUser} and processed successfully!`,
-          timestamp: new Date().toLocaleTimeString(),
-          sender: 'System',
-        },
+        { id: `msg-${Date.now()}-success`, type: 'system', text: `"${newFile.name}" uploaded by ${currentUser} and processed successfully!`, timestamp: new Date().toLocaleTimeString(), sender: 'System' },
       ]);
     } catch (error: any) {
       console.error("File upload error:", error);
       setMessages((prev) => [
         ...prev,
-        {
-          id: `msg-${Date.now()}`,
-          type: 'system',
-          text: `Error uploading "${file.name}": ${error.message || 'Unknown error'}`,
-          timestamp: new Date().toLocaleTimeString(),
-          sender: 'System',
-        },
+        { id: `msg-${Date.now()}-error`, type: 'system', text: `Error uploading "${file.name}": ${error.message || 'Unknown error'}`, timestamp: new Date().toLocaleTimeString(), sender: 'System' },
       ]);
     } finally {
       setUploadingFile(false);
     }
   };
 
-  // --- Context-Aware AI Chat ---
+
   const getAiResponse = async (userMessage: string, lastMessageId?: string): Promise<Message> => {
     if (!currentWorkspace) {
-      return {
-        id: `msg-${Date.now()}`,
-        type: 'ai',
-        text: 'Please create or join a workspace first.',
-        timestamp: new Date().toLocaleTimeString(),
-        sender: 'AI',
-        threadId: lastMessageId,
-      };
+      return { id: `msg-${Date.now()}`, type: 'ai', text: 'Please create or join a workspace first.', timestamp: new Date().toLocaleTimeString(), sender: 'AI', threadId: lastMessageId };
     }
 
     try {
-      // Simulate API call to backend for AI chat with RAG
       const payload = {
         query: userMessage,
-        workspaceId: currentWorkspace.id,
-        // In a real app, you might send current chat history for context
+        workspaceId: currentWorkspace.id, // Pass workspaceId to the backend
       };
 
-      const response = await fetch('/api/team-chat-query', { // Replace with your actual backend endpoint
+      const response = await fetch('http://localhost:5000/api/universal-qa', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
@@ -235,7 +244,7 @@ const TeamWorkspace: React.FC = () => {
         timestamp: new Date().toLocaleTimeString(),
         sender: 'AI',
         sources: aiSources,
-        threadId: lastMessageId || `thread-${Date.now()}`, // New thread or reply to last
+        threadId: lastMessageId || `thread-${Date.now()}`,
       };
     } catch (error: any) {
       console.error("AI chat error:", error);
@@ -260,14 +269,13 @@ const TeamWorkspace: React.FC = () => {
       text: inputMessage.trim(),
       timestamp: new Date().toLocaleTimeString(),
       sender: currentUser,
-      threadId: messages.length > 0 ? messages[messages.length - 1].threadId : currentMessageId, // Link to previous thread or start new
-      isReply: messages.length > 0 && messages[messages.length - 1].type === 'ai', // Simple reply logic
+      threadId: messages.length > 0 ? messages[messages.length - 1].threadId : currentMessageId,
+      isReply: messages.length > 0 && messages[messages.length - 1].type === 'ai',
     };
 
     setMessages((prevMessages) => [...prevMessages, newUserMessage]);
     setInputMessage('');
 
-    // Add AI typing indicator
     const aiLoadingMessageId = `msg-${Date.now()}-loading`;
     setMessages((prevMessages) => [
       ...prevMessages,
@@ -280,7 +288,7 @@ const TeamWorkspace: React.FC = () => {
       const updatedMessages = [...prevMessages];
       const loadingMessageIndex = updatedMessages.findIndex(msg => msg.id === aiLoadingMessageId);
       if (loadingMessageIndex !== -1) {
-        updatedMessages[loadingMessageIndex] = aiResponse; // Replace loading message with actual AI response
+        updatedMessages[loadingMessageIndex] = aiResponse;
       } else {
         updatedMessages.push(aiResponse);
       }
@@ -289,7 +297,7 @@ const TeamWorkspace: React.FC = () => {
   };
 
   const handleKeyPress = (event: React.KeyboardEvent<HTMLInputElement>): void => {
-    if (event.key === 'Enter' && !uploadingFile) { // Disable send on Enter if uploading
+    if (event.key === 'Enter' && !uploadingFile) {
       handleSendMessage();
     }
   };

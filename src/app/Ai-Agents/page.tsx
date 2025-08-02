@@ -1,4 +1,4 @@
-"use client"; // This directive is necessary for client-side interactivity in Next.js
+"use client";
 
 import React, { useState, useRef, useEffect } from 'react';
 
@@ -13,98 +13,59 @@ interface AgentLogEntry {
 }
 
 const AgentBuilder: React.FC = () => {
-  const [goalInput, setGoalInput] = useState<string>(''); // User's input for the agent's goal
-  const [agentLog, setAgentLog] = useState<AgentLogEntry[]>([]); // Log of agent's actions and responses
-  const [isAgentRunning, setIsAgentRunning] = useState<boolean>(false); // State to control agent's active status
-  const logContainerRef = useRef<HTMLDivElement>(null); // Ref for scrolling log to bottom
+  const [goalInput, setGoalInput] = useState<string>('');
+  const [agentLog, setAgentLog] = useState<AgentLogEntry[]>([]);
+  const [isAgentRunning, setIsAgentRunning] = useState<boolean>(false);
+  const logContainerRef = useRef<HTMLDivElement>(null);
 
-  // Scroll to the bottom of the log container when new entries are added
   useEffect(() => {
     if (logContainerRef.current) {
       logContainerRef.current.scrollTop = logContainerRef.current.scrollHeight;
     }
   }, [agentLog]);
 
-  // --- Simulated Agent Logic (Frontend Placeholder) ---
-  const simulateAgentRun = async (goal: string): Promise<void> => {
-    setIsAgentRunning(true);
-    setAgentLog([]); // Clear previous log
+  const handleStartAgent = async (): Promise<void> => {
+    if (goalInput.trim() === '') return;
 
-    const addLogEntry = (entry: Omit<AgentLogEntry, 'id' | 'timestamp'>) => {
-      setAgentLog((prev) => [
-        ...prev,
-        { id: `log-${Date.now()}-${Math.random()}`, timestamp: new Date().toLocaleTimeString(), ...entry },
-      ]);
-      return new Promise(resolve => setTimeout(resolve, 800)); // Simulate typing/processing delay
-    };
+    setIsAgentRunning(true);
+    setAgentLog([]);
+    setAgentLog((prev) => [...prev, { id: `log-${Date.now()}`, type: 'goal', text: `Goal received: "${goalInput.trim()}"`, timestamp: new Date().toLocaleTimeString() }]);
+    setAgentLog((prev) => [...prev, { id: `log-${Date.now()}-loading`, type: 'status', text: 'Agent is planning steps...', loading: true, timestamp: new Date().toLocaleTimeString() }]);
 
     try {
-      await addLogEntry({ type: 'goal', text: `Goal received: "${goal}"` });
-      await addLogEntry({ type: 'status', text: 'Agent is planning steps...', loading: true });
-
-      // Simulate Planning
-      await new Promise(resolve => setTimeout(resolve, 2000)); // Longer delay for planning
-      await addLogEntry({
-        type: 'plan',
-        text: 'Plan generated:',
-        details: `1. Search for relevant information on the web.
-2. Analyze search results to extract key data.
-3. Synthesize information to form a comprehensive answer.
-4. Present the final answer.`,
-        loading: false
-      });
-      await addLogEntry({ type: 'status', text: 'Starting execution...' });
-
-      // Simulate Tool Execution
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      await addLogEntry({
-        type: 'tool_execution',
-        text: 'Executing Tool: Web Search',
-        details: 'Query: "Latest trends in AI agent development"',
+      const response = await fetch('http://localhost:5000/api/agents/run', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ goal: goalInput.trim() }),
       });
 
-      await new Promise(resolve => setTimeout(resolve, 2500));
-      await addLogEntry({
-        type: 'status',
-        text: 'Analyzing search results...',
-      });
+      if (!response.ok) {
+        throw new Error('Failed to start agent.');
+      }
 
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      await addLogEntry({
-        type: 'tool_execution',
-        text: 'Executing Tool: Data Extraction',
-        details: 'Extracted key trends and insights from 5 articles.',
+      const data = await response.json();
+      setAgentLog((prev) => {
+        const updatedLog = [...prev];
+        const loadingIndex = updatedLog.findIndex(entry => entry.loading);
+        if (loadingIndex !== -1) {
+          updatedLog.splice(loadingIndex, 1); // Remove loading state
+        }
+        return [...updatedLog, ...data.log]; // Add the full log from the backend
       });
-
-      // Simulate Adaptation/Outcome
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      await addLogEntry({
-        type: 'status',
-        text: 'Synthesizing information and adapting based on findings...',
-      });
-
-      await new Promise(resolve => setTimeout(resolve, 3000));
-      await addLogEntry({
-        type: 'result',
-        text: 'Goal achieved!',
-        details: `The AI agent successfully gathered and synthesized information on "Latest trends in AI agent development". Key trends include advancements in multi-modal agents, improved long-term memory, and enhanced tool-use capabilities.`,
-      });
-
     } catch (error: any) {
-      await addLogEntry({
-        type: 'error',
-        text: 'An error occurred during agent execution.',
-        details: error.message || 'Unknown error',
+      console.error("Agent execution error:", error);
+      setAgentLog((prev) => {
+        const updatedLog = [...prev];
+        const loadingIndex = updatedLog.findIndex(entry => entry.loading);
+        if (loadingIndex !== -1) {
+          updatedLog.splice(loadingIndex, 1);
+        }
+        return [...updatedLog, { id: `log-${Date.now()}-error`, type: 'error', text: `Agent execution failed: ${error.message}`, timestamp: new Date().toLocaleTimeString() }];
       });
     } finally {
       setIsAgentRunning(false);
+      setGoalInput('');
     }
-  };
-
-  const handleStartAgent = (): void => {
-    if (goalInput.trim() === '') return;
-    simulateAgentRun(goalInput.trim());
-    setGoalInput(''); // Clear input after starting
   };
 
   const handleKeyPress = (event: React.KeyboardEvent<HTMLInputElement>): void => {
@@ -116,13 +77,11 @@ const AgentBuilder: React.FC = () => {
   return (
     <div className="min-h-screen bg-gray-900 text-white font-sans flex flex-col items-center justify-center p-4 sm:p-6 lg:p-8">
       <div className="bg-gray-800 rounded-xl shadow-2xl w-full max-w-4xl flex flex-col overflow-hidden h-[90vh] border border-gray-700">
-
         {/* Header */}
         <div className="p-6 border-b border-gray-700 text-center bg-gray-700">
           <h2 className="text-3xl font-extrabold text-blue-300">AI Agent Builder</h2>
           <p className="text-sm text-gray-400 mt-1">Define goals, watch agents plan & execute tasks.</p>
         </div>
-
         {/* Agent Log Display */}
         <div ref={logContainerRef} className="flex-grow bg-gray-800 p-6 overflow-y-auto shadow-inner">
           {agentLog.length === 0 ? (
@@ -157,7 +116,6 @@ const AgentBuilder: React.FC = () => {
             ))
           )}
         </div>
-
         {/* Goal Input */}
         <div className="p-6 border-t border-gray-700 bg-gray-700 flex items-center gap-4">
           <input

@@ -1,21 +1,22 @@
 "use client";
+
 import React, { useState, useRef, useEffect } from 'react';
 
-// Define types for message objects
 interface Message {
   type: 'user' | 'ai' | 'system';
   text: string;
-  loading?: boolean; // Optional property for loading state
-  sources?: string[]; // Optional property for AI response citations/sources
+  loading?: boolean;
+  sources?: string[];
 }
 
 const SoleUser: React.FC = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputMessage, setInputMessage] = useState<string>('');
   const [pdfFile, setPdfFile] = useState<File | null>(null);
-  const [processingPdf, setProcessingPdf] = useState<boolean>(false); // New state for PDF processing
-  const [processedDocumentId, setProcessedDocumentId] = useState<string | null>(null); // New state for backend document ID
+  const [processingPdf, setProcessingPdf] = useState<boolean>(false);
+  const [processedDocumentId, setProcessedDocumentId] = useState<string | null>(null);
   const chatContainerRef = useRef<HTMLDivElement>(null);
+  const soloWorkspaceId = "solo-user-workspace-id-001"; // Hardcoded ID for solo user's workspace
 
   useEffect(() => {
     if (chatContainerRef.current) {
@@ -28,27 +29,21 @@ const SoleUser: React.FC = () => {
     if (!file) return;
 
     if (file.type !== "application/pdf") {
-      setMessages((prevMessages) => [
-        ...prevMessages,
-        { type: 'system', text: 'Please upload a valid PDF file.' },
-      ]);
+      setMessages((prevMessages) => [...prevMessages, { type: 'system', text: 'Please upload a valid PDF file.' }]);
       setPdfFile(null);
       return;
     }
 
     setPdfFile(file);
-    setProcessingPdf(true); // Start PDF processing loading indicator
-    setMessages((prevMessages) => [
-      ...prevMessages,
-      { type: 'system', text: `Uploading and processing PDF: ${file.name}...` },
-    ]);
+    setProcessingPdf(true);
+    setMessages((prevMessages) => [...prevMessages, { type: 'system', text: `Uploading and processing PDF: ${file.name}...` }]);
 
     const formData = new FormData();
-    formData.append('pdf', file);
+    formData.append('file', file);
+    formData.append('workspaceId', soloWorkspaceId); // Send hardcoded workspace ID
 
     try {
-      // Simulate API call to backend for PDF upload and processing
-      const response = await fetch('/api/upload-pdf', { // Replace with your actual backend endpoint
+      const response = await fetch('http://localhost:5000/api/universal-upload', {
         method: 'POST',
         body: formData,
       });
@@ -59,33 +54,26 @@ const SoleUser: React.FC = () => {
       }
 
       const data = await response.json();
-      setProcessedDocumentId(data.documentId); // Store the document ID from the backend
-      setMessages((prevMessages) => [
-        ...prevMessages,
-        { type: 'system', text: `PDF "${file.name}" processed successfully! Document ID: ${data.documentId}` },
-      ]);
+      setProcessedDocumentId(data.documentId);
+      setMessages((prevMessages) => [...prevMessages, { type: 'system', text: `PDF "${file.name}" processed successfully! Document ID: ${data.documentId}` }]);
     } catch (error: any) {
       console.error("PDF upload error:", error);
-      setMessages((prevMessages) => [
-        ...prevMessages,
-        { type: 'system', text: `Error processing PDF: ${error.message || 'Unknown error'}` },
-      ]);
-      setPdfFile(null); // Clear PDF file on error
-      setProcessedDocumentId(null); // Clear document ID on error
+      setMessages((prevMessages) => [...prevMessages, { type: 'system', text: `Error processing PDF: ${error.message || 'Unknown error'}` }]);
+      setPdfFile(null);
+      setProcessedDocumentId(null);
     } finally {
-      setProcessingPdf(false); // End PDF processing loading indicator
+      setProcessingPdf(false);
     }
   };
 
   const getAiResponse = async (userMessage: string): Promise<string> => {
     try {
-      // API call to backend for AI chat with RAG
       const payload = {
         query: userMessage,
-        documentId: processedDocumentId, // Pass the ID of the processed PDF if available
+        workspaceId: soloWorkspaceId, // Send hardcoded workspace ID
       };
 
-      const response = await fetch('/api/chat-query', { // Replace with your actual backend endpoint
+      const response = await fetch('http://localhost:5000/api/universal-qa', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
@@ -111,10 +99,7 @@ const SoleUser: React.FC = () => {
     setMessages((prevMessages) => [...prevMessages, newUserMessage]);
     setInputMessage('');
 
-    setMessages((prevMessages) => [
-      ...prevMessages,
-      { type: 'ai', text: '...', loading: true },
-    ]);
+    setMessages((prevMessages) => [...prevMessages, { type: 'ai', text: '...', loading: true }]);
 
     const aiResponseText = await getAiResponse(newUserMessage.text);
 
@@ -137,15 +122,13 @@ const SoleUser: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-900 text-white font-sans flex flex-col items-center justify-center p-4 sm:p-6 lg:p-8">
-      <div className="bg-gray-800 rounded-xl shadow-2xl w-full max-w-4xl flex flex-col md:flex-row overflow-hidden h-[90vh] border border-gray-700"> 
-
+    <div className="min-h-screen bg-gray-100 flex flex-col items-center justify-center p-4 sm:p-6 lg:p-8 font-sans">
+      <div className="bg-white rounded-xl shadow-2xl w-full max-w-4xl flex flex-col md:flex-row overflow-hidden h-[90vh] border border-gray-200">
         {/* Left Panel: PDF Upload Section */}
-        <div className="w-full md:w-1/3 p-6 border-b md:border-b-0 md:border-r border-gray-700 flex flex-col bg-gray-800"> 
-          <h2 className="text-2xl font-bold text-gray-200 mb-6 text-center">Document Center</h2> 
-
+        <div className="w-full md:w-1/3 p-6 border-b md:border-b-0 md:border-r border-gray-200 flex flex-col bg-gray-50">
+          <h2 className="text-2xl font-bold text-gray-800 mb-6 text-center">Document Center</h2>
           <div className="mb-6">
-            <label htmlFor="pdf-upload" className="block text-sm font-medium text-gray-300 mb-2"> 
+            <label htmlFor="pdf-upload" className="block text-sm font-medium text-gray-700 mb-2">
               Upload PDF
             </label>
             <input
@@ -153,67 +136,53 @@ const SoleUser: React.FC = () => {
               id="pdf-upload"
               accept=".pdf"
               onChange={handlePdfUpload}
-              className="block w-full text-sm text-gray-300
+              className="block w-full text-sm text-gray-900
                          file:mr-4 file:py-2 file:px-4
                          file:rounded-full file:border-0
                          file:text-sm file:font-semibold
-                         file:bg-blue-600 file:text-white
-                         hover:file:bg-blue-700 cursor-pointer rounded-lg border border-gray-600 p-2" 
-              disabled={processingPdf} // Disable input while processing
+                         file:bg-blue-50 file:text-blue-700
+                         hover:file:bg-blue-100 cursor-pointer rounded-lg border border-gray-300 p-2"
+              disabled={processingPdf}
             />
             {pdfFile && (
-              <p className="mt-2 text-sm text-gray-400"> 
-                Selected: <span className="font-medium text-blue-400">{pdfFile.name}</span> 
+              <p className="mt-2 text-sm text-gray-600">
+                Selected: <span className="font-medium text-blue-700">{pdfFile.name}</span>
               </p>
             )}
             {processingPdf && (
-              <p className="mt-2 text-sm text-blue-400 animate-pulse">Processing PDF, please wait...</p> 
+              <p className="mt-2 text-sm text-blue-500 animate-pulse">Processing PDF, please wait...</p>
             )}
           </div>
-
-          <div className="flex-grow bg-gray-700 rounded-lg p-4 overflow-y-auto shadow-inner border border-gray-600"> 
-            <h3 className="text-lg font-semibold text-gray-200 mb-2">Processed Documents</h3> 
+          <div className="flex-grow border border-gray-300 rounded-lg p-4 bg-white overflow-y-auto shadow-inner">
+            <h3 className="text-lg font-semibold text-gray-700 mb-2">Processed Documents</h3>
             {processedDocumentId ? (
-              <ul className="list-disc list-inside text-gray-300"> 
+              <ul className="list-disc list-inside text-gray-600">
                 <li>{pdfFile?.name || 'Unknown PDF'} (ID: {processedDocumentId})</li>
-                {/* In a real app, multiple listed docs will processed here */}
               </ul>
             ) : (
-              <p className="text-gray-400 text-sm">No documents processed yet.</p> 
+              <p className="text-gray-500 text-sm">No documents processed yet.</p>
             )}
           </div>
         </div>
-
         {/* Right Panel: Chat Section */}
-        <div className="w-full md:w-2/3 flex flex-col p-6 bg-gray-800"> 
-          <h2 className="text-2xl font-bold text-gray-200 mb-6 text-center">Chat with AI</h2>
-
-          {/* Chat Messages Display */}
-          <div ref={chatContainerRef} className="flex-grow bg-gray-700 p-4 rounded-lg overflow-y-auto shadow-inner mb-4 border border-gray-600"> 
+        <div className="w-full md:w-2/3 flex flex-col p-6">
+          <h2 className="text-2xl font-bold text-gray-800 mb-6 text-center">Chat with AI</h2>
+          <div ref={chatContainerRef} className="flex-grow bg-gray-50 p-4 rounded-lg overflow-y-auto shadow-inner mb-4 border border-gray-200">
             {messages.length === 0 ? (
-              <p className="text-gray-400 text-center text-sm">Upload a PDF and ask questions about it!</p> 
+              <p className="text-gray-500 text-center text-sm">Upload a PDF and ask questions about it!</p>
             ) : (
               messages.map((msg, index) => (
-                <div
-                  key={index}
-                  className={`flex mb-3 ${msg.type === 'user' ? 'justify-end' : 'justify-start'}`}
-                >
-                  <div
-                    className={`max-w-[75%] p-3 rounded-xl shadow-md ${
-                      msg.type === 'user'
-                        ? 'bg-blue-600 text-white rounded-br-none' 
-                        : 'bg-gray-600 text-gray-100 rounded-bl-none' 
-                    }`}
-                  >
+                <div key={index} className={`flex mb-3 ${msg.type === 'user' ? 'justify-end' : 'justify-start'}`}>
+                  <div className={`max-w-[75%] p-3 rounded-xl shadow-md ${
+                    msg.type === 'user' ? 'bg-blue-500 text-white rounded-br-none' : 'bg-gray-200 text-gray-800 rounded-bl-none'
+                  }`}>
                     {msg.loading ? (
                       <span className="animate-pulse">Typing...</span>
                     ) : (
                       <>
                         {msg.text}
                         {msg.sources && msg.sources.length > 0 && (
-                          <p className="text-xs mt-1 opacity-75 text-gray-300"> 
-                            Sources: {msg.sources.join(', ')}
-                          </p>
+                          <p className="text-xs mt-1 opacity-75">Sources: {msg.sources.join(', ')}</p>
                         )}
                       </>
                     )}
@@ -222,8 +191,6 @@ const SoleUser: React.FC = () => {
               ))
             )}
           </div>
-
-          {/* Message Input */}
           <div className="flex items-center">
             <input
               type="text"
@@ -231,13 +198,13 @@ const SoleUser: React.FC = () => {
               onChange={(e: React.ChangeEvent<HTMLInputElement>) => setInputMessage(e.target.value)}
               onKeyPress={handleKeyPress}
               placeholder={processingPdf ? "Please wait for PDF processing..." : "Type your message..."}
-              className="flex-grow p-3 border border-gray-600 rounded-l-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-700 text-white placeholder-gray-400" /* Updated border, bg, text, placeholder colors */
-              disabled={processingPdf} // Disable chat input while PDF is processing
+              className="flex-grow p-3 border border-gray-300 rounded-l-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-800"
+              disabled={processingPdf}
             />
             <button
               onClick={handleSendMessage}
               className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-r-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              disabled={processingPdf || inputMessage.trim() === ''} // Disable send button
+              disabled={processingPdf || inputMessage.trim() === ''}
             >
               Send
             </button>
