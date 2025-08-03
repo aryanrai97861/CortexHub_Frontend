@@ -305,62 +305,105 @@ const TeamWorkspace: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-900 text-white font-sans flex flex-col items-center p-4 sm:p-6 lg:p-8">
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-blue-900 to-purple-900 text-white font-sans flex flex-col items-center p-4 sm:p-6 lg:p-8 relative overflow-hidden">
+      {/* Animated background elements */}
+      <div className="absolute inset-0 overflow-hidden">
+        <div className="absolute -top-40 -right-40 w-80 h-80 bg-blue-500/10 rounded-full blur-3xl animate-pulse"></div>
+        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-purple-500/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-blue-600/5 rounded-full blur-3xl animate-pulse delay-500"></div>
+      </div>
+      
       {showKnowledgeGraph && currentWorkspace && ( // My Comment: Conditionally render the graph viewer
         <KnowledgeGraphViewer
           workspaceId={currentWorkspace.id}
           onClose={() => setShowKnowledgeGraph(false)}
         />
       )}
-      <div className="bg-gray-800 rounded-xl shadow-2xl w-full max-w-6xl flex flex-col overflow-hidden h-[90vh] border border-gray-700">
+      <div className="bg-white/10 backdrop-blur-xl rounded-3xl shadow-2xl w-full max-w-7xl flex flex-col overflow-hidden h-[90vh] border border-white/20 relative z-10">
 
         {/* Top Bar: Workspace Info / Creation */}
-        <div className="p-6 border-b border-gray-700 flex flex-col sm:flex-row justify-between items-center gap-4 bg-gray-700">
+        <div className="p-6 border-b border-white/20 flex flex-col sm:flex-row justify-between items-center gap-4 bg-white/5 backdrop-blur-sm">
           {!currentWorkspace ? (
-            <>
+            <div className="w-full">
+              <div className="text-center mb-6">
+                <h1 className="text-3xl font-bold text-white mb-2">Team Collaboration Hub</h1>
+                <p className="text-blue-200">Create or join a workspace to start collaborating</p>
+              </div>
               <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
                 <input
                   type="text"
                   placeholder="New workspace name"
                   value={workspaceNameInput}
                   onChange={(e) => setWorkspaceNameInput(e.target.value)}
-                  className="p-2 rounded-lg bg-gray-600 border border-gray-500 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 w-full sm:w-auto"
+                  className="p-3 rounded-xl bg-white/10 backdrop-blur-sm border border-white/30 text-white placeholder-blue-200/70 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent w-full sm:w-auto transition-all duration-200"
                 />
                 <button
                   onClick={handleCreateWorkspace}
-                  className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg transition-colors duration-200 w-full sm:w-auto"
+                  className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-bold py-3 px-6 rounded-xl transition-all duration-200 w-full sm:w-auto shadow-lg transform hover:scale-105"
                 >
                   Create Workspace
                 </button>
               </div>
-              <span className="text-gray-400">OR</span>
+              <div className="flex items-center my-4">
+                <div className="flex-grow h-px bg-white/20"></div>
+                <span className="px-4 text-blue-200/70 text-sm">OR</span>
+                <div className="flex-grow h-px bg-white/20"></div>
+              </div>
               <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
                 <input
                   type="text"
                   placeholder="Join via invite link"
                   value={inviteLinkInput}
                   onChange={(e) => setInviteLinkInput(e.target.value)}
-                  className="p-2 rounded-lg bg-gray-600 border border-gray-500 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 w-full sm:w-auto"
+                  className="p-3 rounded-xl bg-white/10 backdrop-blur-sm border border-white/30 text-white placeholder-blue-200/70 focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-transparent w-full sm:w-auto transition-all duration-200"
                 />
                 <button
                   onClick={handleJoinWorkspace}
-                  className="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-lg transition-colors duration-200 w-full sm:w-auto"
+                  className="bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white font-bold py-3 px-6 rounded-xl transition-all duration-200 w-full sm:w-auto shadow-lg transform hover:scale-105"
                 >
                   Join Workspace
                 </button>
               </div>
-            </>
+            </div>
           ) : (
-            <div className="w-full text-center sm:text-left">
-              <h2 className="text-3xl font-extrabold text-blue-300">
-                {currentWorkspace.name}
-              </h2>
-              <p className="text-sm text-gray-400">
-                Members: {currentWorkspace.members.join(', ')} | Invite Link:{" "}
-                <span className="font-mono text-blue-400 text-xs break-all">
-                  {currentWorkspace.inviteLink}
-                </span>
-              </p>
+            <div className="w-full">
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                <div>
+                  <h2 className="text-3xl font-extrabold text-white mb-2 flex items-center">
+                    <div className="w-8 h-8 bg-gradient-to-br from-blue-400 to-blue-600 rounded-lg flex items-center justify-center mr-3">
+                      <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                      </svg>
+                    </div>
+                    {currentWorkspace.name}
+                  </h2>
+                  <div className="flex flex-wrap items-center gap-4 text-sm">
+                    <div className="flex items-center text-blue-200">
+                      <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z" />
+                      </svg>
+                      Members: {currentWorkspace.members.join(', ')}
+                    </div>
+                    <div className="flex items-center text-blue-300">
+                      <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+                      </svg>
+                      <span className="font-mono text-xs break-all bg-white/10 px-2 py-1 rounded">
+                        {currentWorkspace.inviteLink}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+                <button
+                  onClick={() => setShowKnowledgeGraph(true)}
+                  className="bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white font-medium py-2 px-4 rounded-xl transition-all duration-200 shadow-lg transform hover:scale-105 flex items-center"
+                >
+                  <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                  </svg>
+                  View Graph
+                </button>
+              </div>
             </div>
           )}
         </div>
@@ -368,41 +411,55 @@ const TeamWorkspace: React.FC = () => {
         {/* Main Content Area: Files & Chat */}
         <div className="flex-grow flex flex-col md:flex-row overflow-hidden">
           {/* Left Panel: Uploaded Files */}
-          <div className="w-full md:w-1/4 p-6 border-b md:border-b-0 md:border-r border-gray-700 flex flex-col bg-gray-800">
-            <h3 className="text-xl font-bold text-gray-200 mb-4">Shared Files</h3>
+          <div className="w-full md:w-1/4 p-6 border-b md:border-b-0 md:border-r border-white/20 flex flex-col bg-white/5 backdrop-blur-sm">
+            <h3 className="text-xl font-bold text-white mb-4 flex items-center">
+              <svg className="w-5 h-5 mr-2 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              </svg>
+              Shared Files
+            </h3>
             <div className="mb-4">
-              <label htmlFor="file-upload" className="block text-sm font-medium text-gray-300 mb-2">
+              <label htmlFor="file-upload" className="block text-sm font-medium text-blue-200 mb-3">
                 Upload New File
               </label>
               <input
                 type="file"
                 id="file-upload"
                 onChange={handleFileUpload}
-                className="block w-full text-sm text-gray-300
+                className="block w-full text-sm text-white
                            file:mr-4 file:py-2 file:px-4
                            file:rounded-full file:border-0
                            file:text-sm file:font-semibold
-                           file:bg-blue-500 file:text-white
-                           hover:file:bg-blue-600 cursor-pointer rounded-lg border border-gray-600 p-2"
+                           file:bg-blue-600 file:text-white
+                           hover:file:bg-blue-700 cursor-pointer rounded-lg border border-white/30 bg-white/10 p-3 backdrop-blur-sm
+                           focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all duration-200"
                 disabled={!currentWorkspace || uploadingFile}
               />
               {uploadingFile && (
-                <p className="mt-2 text-sm text-blue-400 animate-pulse">Uploading and processing...</p>
+                <div className="mt-3 flex items-center text-sm text-blue-300">
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-400 mr-2"></div>
+                  Uploading and processing...
+                </div>
               )}
             </div>
 
-            <div className="flex-grow bg-gray-700 rounded-lg p-4 overflow-y-auto shadow-inner border border-gray-600">
+            <div className="flex-grow bg-white/5 backdrop-blur-sm rounded-xl p-4 overflow-y-auto shadow-inner border border-white/20">
               {currentWorkspace?.files.length === 0 ? (
-                <p className="text-gray-400 text-sm">No files uploaded yet.</p>
+                <div className="text-center py-8">
+                  <svg className="w-12 h-12 text-blue-400/50 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                  </svg>
+                  <p className="text-blue-200/70 text-sm">No files uploaded yet.</p>
+                </div>
               ) : (
                 <ul className="space-y-2">
                   {currentWorkspace?.files.map((file) => (
-                    <li key={file.id} className="bg-gray-600 p-3 rounded-lg flex justify-between items-center text-sm shadow-sm">
+                    <li key={file.id} className="bg-white/10 backdrop-blur-sm p-3 rounded-lg flex justify-between items-center text-sm shadow-sm border border-white/20 hover:bg-white/20 transition-all duration-200">
                       <div>
-                        <span className="font-medium text-gray-100">{file.name}</span>
-                        <p className="text-xs text-gray-400">by {file.uploadedBy} at {file.timestamp}</p>
+                        <span className="font-medium text-white">{file.name}</span>
+                        <p className="text-xs text-blue-200">by {file.uploadedBy} at {file.timestamp}</p>
                       </div>
-                      <span className="text-xs text-gray-400 uppercase bg-gray-700 px-2 py-1 rounded-full">{file.type}</span>
+                      <span className="text-xs text-blue-300 uppercase bg-blue-600/30 px-2 py-1 rounded-full border border-blue-400/30">{file.type}</span>
                     </li>
                   ))}
                 </ul>
@@ -411,13 +468,24 @@ const TeamWorkspace: React.FC = () => {
           </div>
 
           {/* Right Panel: AI Chat */}
-          <div className="w-full md:w-3/4 flex flex-col p-6 bg-gray-800">
-            <h3 className="text-xl font-bold text-gray-200 mb-4 text-center">Contextual AI Chat</h3>
+          <div className="w-full md:w-3/4 flex flex-col p-6 bg-white/5 backdrop-blur-sm">
+            <h3 className="text-xl font-bold text-white mb-4 text-center flex items-center justify-center">
+              <svg className="w-6 h-6 mr-2 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+              </svg>
+              Contextual AI Chat
+            </h3>
 
             {/* Chat Messages Display */}
-            <div ref={chatContainerRef} className="flex-grow bg-gray-700 p-4 rounded-lg overflow-y-auto shadow-inner mb-4 border border-gray-600">
+            <div ref={chatContainerRef} className="flex-grow bg-white/5 backdrop-blur-sm p-4 rounded-xl overflow-y-auto shadow-inner mb-4 border border-white/20">
               {messages.length === 0 ? (
-                <p className="text-gray-400 text-center text-sm">Create/join a workspace to start chatting!</p>
+                <div className="text-center py-12">
+                  <svg className="w-16 h-16 text-purple-400/50 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                  </svg>
+                  <p className="text-blue-200/70 text-lg">Create/join a workspace to start chatting!</p>
+                  <p className="text-blue-200/50 text-sm mt-2">Collaborate with your team using AI-powered insights</p>
+                </div>
               ) : (
                 messages.map((msg, index) => (
                   <div
@@ -427,22 +495,26 @@ const TeamWorkspace: React.FC = () => {
                     <div
                       className={`max-w-[75%] p-3 rounded-xl shadow-md ${
                         msg.type === 'user'
-                          ? 'bg-blue-600 text-white rounded-br-none'
+                          ? 'bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-br-none shadow-lg'
                           : msg.type === 'ai'
-                          ? 'bg-gray-600 text-gray-100 rounded-bl-none'
-                          : 'bg-gray-500 text-gray-200 rounded-lg' // System messages
+                          ? 'bg-white/20 backdrop-blur-sm text-white rounded-bl-none border border-white/30'
+                          : 'bg-gradient-to-r from-purple-600/80 to-purple-700/80 text-white rounded-lg backdrop-blur-sm' // System messages
                       }`}
                     >
-                      <span className="font-semibold text-xs opacity-80 mb-1 block">
-                        {msg.sender} <span className="font-normal text-gray-400">at {msg.timestamp}</span>
+                      <span className="font-semibold text-xs opacity-90 mb-1 flex items-center">
+                        <div className="w-2 h-2 bg-current rounded-full mr-2 opacity-60"></div>
+                        {msg.sender} <span className="font-normal opacity-70 ml-2">at {msg.timestamp}</span>
                       </span>
                       {msg.loading ? (
-                        <span className="animate-pulse">Typing...</span>
+                        <div className="flex items-center">
+                          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                          <span className="animate-pulse">Typing...</span>
+                        </div>
                       ) : (
                         <>
                           {msg.text}
                           {msg.sources && msg.sources.length > 0 && (
-                            <p className="text-xs mt-1 opacity-75 text-gray-300">
+                            <p className="text-xs mt-2 opacity-75 border-t border-white/20 pt-2">
                               Sources: {msg.sources.join(', ')}
                             </p>
                           )}
@@ -455,22 +527,24 @@ const TeamWorkspace: React.FC = () => {
             </div>
 
             {/* Message Input */}
-            <div className="flex items-center">
+            <div className="flex items-center space-x-3">
               <input
                 type="text"
                 value={inputMessage}
                 onChange={(e) => setInputMessage(e.target.value)}
                 onKeyPress={handleKeyPress}
                 placeholder={!currentWorkspace ? "Create or join a workspace to chat..." : (uploadingFile ? "Processing file, please wait..." : "Ask AI a question...")}
-                className="flex-grow p-3 border border-gray-600 rounded-l-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-700 text-white placeholder-gray-400"
+                className="flex-grow p-4 border border-white/30 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent bg-white/10 backdrop-blur-sm text-white placeholder-blue-200/70 transition-all duration-200"
                 disabled={!currentWorkspace || uploadingFile}
               />
               <button
                 onClick={handleSendMessage}
-                className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-r-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-bold py-4 px-6 rounded-xl transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-400 shadow-lg transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
                 disabled={!currentWorkspace || uploadingFile || inputMessage.trim() === ''}
               >
-                Send
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+                </svg>
               </button>
             </div>
           </div>

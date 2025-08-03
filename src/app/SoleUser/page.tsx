@@ -122,13 +122,26 @@ const SoleUser: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 flex flex-col items-center justify-center p-4 sm:p-6 lg:p-8 font-sans">
-      <div className="bg-white rounded-xl shadow-2xl w-full max-w-4xl flex flex-col md:flex-row overflow-hidden h-[90vh] border border-gray-200">
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-blue-900 to-purple-900 flex flex-col items-center justify-center p-4 sm:p-6 lg:p-8 font-sans relative overflow-hidden">
+      {/* Animated background elements */}
+      <div className="absolute inset-0 overflow-hidden">
+        <div className="absolute -top-40 -right-40 w-80 h-80 bg-blue-500/10 rounded-full blur-3xl animate-pulse"></div>
+        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-purple-500/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
+      </div>
+      
+      <div className="bg-white/10 backdrop-blur-xl rounded-3xl shadow-2xl w-full max-w-6xl flex flex-col md:flex-row overflow-hidden h-[90vh] border border-white/20 relative">
         {/* Left Panel: PDF Upload Section */}
-        <div className="w-full md:w-1/3 p-6 border-b md:border-b-0 md:border-r border-gray-200 flex flex-col bg-gray-50">
-          <h2 className="text-2xl font-bold text-gray-800 mb-6 text-center">Document Center</h2>
+        <div className="w-full md:w-1/3 p-6 border-b md:border-b-0 md:border-r border-white/20 flex flex-col bg-white/5 backdrop-blur-sm">
+          <div className="flex items-center justify-center mb-6">
+            <div className="w-8 h-8 bg-gradient-to-br from-blue-400 to-blue-600 rounded-lg flex items-center justify-center mr-3">
+              <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              </svg>
+            </div>
+            <h2 className="text-2xl font-bold text-white">Document Center</h2>
+          </div>
           <div className="mb-6">
-            <label htmlFor="pdf-upload" className="block text-sm font-medium text-gray-700 mb-2">
+            <label htmlFor="pdf-upload" className="block text-sm font-medium text-blue-200 mb-3">
               Upload PDF
             </label>
             <input
@@ -136,53 +149,94 @@ const SoleUser: React.FC = () => {
               id="pdf-upload"
               accept=".pdf"
               onChange={handlePdfUpload}
-              className="block w-full text-sm text-gray-900
+              className="block w-full text-sm text-white
                          file:mr-4 file:py-2 file:px-4
                          file:rounded-full file:border-0
                          file:text-sm file:font-semibold
-                         file:bg-blue-50 file:text-blue-700
-                         hover:file:bg-blue-100 cursor-pointer rounded-lg border border-gray-300 p-2"
+                         file:bg-blue-600 file:text-white
+                         hover:file:bg-blue-700 cursor-pointer rounded-lg border border-white/30 bg-white/10 p-3 backdrop-blur-sm
+                         focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all duration-200"
               disabled={processingPdf}
             />
             {pdfFile && (
-              <p className="mt-2 text-sm text-gray-600">
-                Selected: <span className="font-medium text-blue-700">{pdfFile.name}</span>
+              <p className="mt-3 text-sm text-blue-200">
+                Selected: <span className="font-medium text-blue-300">{pdfFile.name}</span>
               </p>
             )}
             {processingPdf && (
-              <p className="mt-2 text-sm text-blue-500 animate-pulse">Processing PDF, please wait...</p>
+              <div className="mt-3 flex items-center text-sm text-blue-300">
+                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-400 mr-2"></div>
+                Processing PDF, please wait...
+              </div>
             )}
           </div>
-          <div className="flex-grow border border-gray-300 rounded-lg p-4 bg-white overflow-y-auto shadow-inner">
-            <h3 className="text-lg font-semibold text-gray-700 mb-2">Processed Documents</h3>
+          <div className="flex-grow border border-white/30 rounded-xl p-4 bg-white/5 backdrop-blur-sm overflow-y-auto shadow-inner">
+            <h3 className="text-lg font-semibold text-white mb-4 flex items-center">
+              <svg className="w-5 h-5 mr-2 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              </svg>
+              Processed Documents
+            </h3>
             {processedDocumentId ? (
-              <ul className="list-disc list-inside text-gray-600">
-                <li>{pdfFile?.name || 'Unknown PDF'} (ID: {processedDocumentId})</li>
-              </ul>
+              <div className="bg-white/10 rounded-lg p-3 border border-white/20">
+                <div className="flex items-center">
+                  <div className="w-2 h-2 bg-green-400 rounded-full mr-3 animate-pulse"></div>
+                  <div>
+                    <p className="text-white font-medium">{pdfFile?.name || 'Unknown PDF'}</p>
+                    <p className="text-xs text-blue-200 mt-1">ID: {processedDocumentId}</p>
+                  </div>
+                </div>
+              </div>
+              
             ) : (
-              <p className="text-gray-500 text-sm">No documents processed yet.</p>
+              <div className="text-center py-8">
+                <svg className="w-12 h-12 text-blue-400/50 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+                <p className="text-blue-200/70 text-sm">No documents processed yet.</p>
+              </div>
             )}
           </div>
         </div>
         {/* Right Panel: Chat Section */}
         <div className="w-full md:w-2/3 flex flex-col p-6">
-          <h2 className="text-2xl font-bold text-gray-800 mb-6 text-center">Chat with AI</h2>
-          <div ref={chatContainerRef} className="flex-grow bg-gray-50 p-4 rounded-lg overflow-y-auto shadow-inner mb-4 border border-gray-200">
+          <div className="flex items-center justify-center mb-6">
+            <div className="w-8 h-8 bg-gradient-to-br from-purple-400 to-purple-600 rounded-lg flex items-center justify-center mr-3">
+              <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+              </svg>
+            </div>
+            <h2 className="text-2xl font-bold text-white">Chat with AI</h2>
+          </div>
+          <div ref={chatContainerRef} className="flex-grow bg-white/5 backdrop-blur-sm p-4 rounded-xl overflow-y-auto shadow-inner mb-4 border border-white/20">
             {messages.length === 0 ? (
-              <p className="text-gray-500 text-center text-sm">Upload a PDF and ask questions about it!</p>
+              <div className="text-center py-12">
+                <svg className="w-16 h-16 text-blue-400/50 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                </svg>
+                <p className="text-blue-200/70 text-lg">Upload a PDF and ask questions about it!</p>
+                <p className="text-blue-200/50 text-sm mt-2">Your AI assistant is ready to help analyze your documents</p>
+              </div>
             ) : (
               messages.map((msg, index) => (
                 <div key={index} className={`flex mb-3 ${msg.type === 'user' ? 'justify-end' : 'justify-start'}`}>
                   <div className={`max-w-[75%] p-3 rounded-xl shadow-md ${
-                    msg.type === 'user' ? 'bg-blue-500 text-white rounded-br-none' : 'bg-gray-200 text-gray-800 rounded-bl-none'
+                    msg.type === 'user' 
+                      ? 'bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-br-none shadow-lg' 
+                      : msg.type === 'system'
+                      ? 'bg-gradient-to-r from-purple-600/80 to-purple-700/80 text-white rounded-lg backdrop-blur-sm'
+                      : 'bg-white/20 backdrop-blur-sm text-white rounded-bl-none border border-white/30'
                   }`}>
                     {msg.loading ? (
-                      <span className="animate-pulse">Typing...</span>
+                      <div className="flex items-center">
+                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                        <span className="animate-pulse">Typing...</span>
+                      </div>
                     ) : (
                       <>
                         {msg.text}
                         {msg.sources && msg.sources.length > 0 && (
-                          <p className="text-xs mt-1 opacity-75">Sources: {msg.sources.join(', ')}</p>
+                          <p className="text-xs mt-2 opacity-75 border-t border-white/20 pt-2">Sources: {msg.sources.join(', ')}</p>
                         )}
                       </>
                     )}
@@ -191,22 +245,24 @@ const SoleUser: React.FC = () => {
               ))
             )}
           </div>
-          <div className="flex items-center">
+          <div className="flex items-center space-x-3">
             <input
               type="text"
               value={inputMessage}
               onChange={(e: React.ChangeEvent<HTMLInputElement>) => setInputMessage(e.target.value)}
               onKeyPress={handleKeyPress}
               placeholder={processingPdf ? "Please wait for PDF processing..." : "Type your message..."}
-              className="flex-grow p-3 border border-gray-300 rounded-l-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-800"
+              className="flex-grow p-4 border border-white/30 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent bg-white/10 backdrop-blur-sm text-white placeholder-blue-200/70 transition-all duration-200"
               disabled={processingPdf}
             />
             <button
               onClick={handleSendMessage}
-              className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-r-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-bold py-4 px-6 rounded-xl transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-400 shadow-lg transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
               disabled={processingPdf || inputMessage.trim() === ''}
             >
-              Send
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+              </svg>
             </button>
           </div>
         </div>

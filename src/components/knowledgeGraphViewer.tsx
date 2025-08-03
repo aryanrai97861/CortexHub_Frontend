@@ -167,11 +167,21 @@ const KnowledgeGraphViewer: React.FC<KnowledgeGraphViewerProps> = ({ workspaceId
   }, [graphData]);
 
   return (
-    <div className="fixed inset-0 bg-gray-900 bg-opacity-90 flex items-center justify-center z-50">
-      <div className="bg-gray-800 rounded-xl shadow-2xl w-full max-w-6xl h-5/6 flex flex-col p-6">
-        <div className="flex justify-between items-center border-b border-gray-700 pb-4 mb-4">
-          <h3 className="text-xl font-bold text-gray-200">Knowledge Visualization</h3>
-          <button onClick={onClose} className="text-gray-400 hover:text-gray-200 transition-colors">
+    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+      <div className="bg-white/10 backdrop-blur-xl rounded-3xl shadow-2xl w-full max-w-7xl h-5/6 flex flex-col p-6 border border-white/20">
+        <div className="flex justify-between items-center border-b border-white/20 pb-4 mb-4">
+          <div className="flex items-center">
+            <div className="w-8 h-8 bg-gradient-to-br from-purple-400 to-purple-600 rounded-lg flex items-center justify-center mr-3">
+              <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+              </svg>
+            </div>
+            <h3 className="text-2xl font-bold text-white">Knowledge Visualization</h3>
+          </div>
+          <button 
+            onClick={onClose} 
+            className="text-white/70 hover:text-white transition-colors p-2 hover:bg-white/10 rounded-lg"
+          >
             <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
             </svg>
@@ -179,22 +189,36 @@ const KnowledgeGraphViewer: React.FC<KnowledgeGraphViewerProps> = ({ workspaceId
         </div>
         
         {/* Tabs */}
-        <div className="flex border-b border-gray-700 mb-4">
+        <div className="flex border-b border-white/20 mb-4">
           <button
-            className={`px-4 py-2 font-medium text-sm rounded-t-lg transition-colors ${activeTab === 'graph' ? 'text-blue-400 border-b-2 border-blue-400' : 'text-gray-400 hover:text-gray-200'}`}
+            className={`px-6 py-3 font-medium text-sm rounded-t-xl transition-all duration-200 flex items-center ${
+              activeTab === 'graph' 
+                ? 'text-blue-400 border-b-2 border-blue-400 bg-white/5' 
+                : 'text-white/70 hover:text-white hover:bg-white/5'
+            }`}
             onClick={() => setActiveTab('graph')}
           >
+            <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+            </svg>
             Knowledge Graph
           </button>
           <button
-            className={`px-4 py-2 font-medium text-sm rounded-t-lg transition-colors ${activeTab === 'chart' ? 'text-blue-400 border-b-2 border-blue-400' : 'text-gray-400 hover:text-gray-200'}`}
+            className={`px-6 py-3 font-medium text-sm rounded-t-xl transition-all duration-200 flex items-center ${
+              activeTab === 'chart' 
+                ? 'text-blue-400 border-b-2 border-blue-400 bg-white/5' 
+                : 'text-white/70 hover:text-white hover:bg-white/5'
+            }`}
             onClick={() => setActiveTab('chart')}
           >
+            <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+            </svg>
             Relationship Chart
           </button>
         </div>
         
-        <div className="flex-grow overflow-hidden">
+        <div className="flex-grow overflow-hidden bg-white/5 backdrop-blur-sm rounded-2xl border border-white/20">
           {activeTab === 'graph' ? (
             <div className="h-full">
               {renderGraph()}
@@ -202,11 +226,17 @@ const KnowledgeGraphViewer: React.FC<KnowledgeGraphViewerProps> = ({ workspaceId
           ) : (
             <div className="h-full p-4">
               {loading ? (
-                <div className="flex items-center justify-center h-full">
-                  <div className="text-blue-400">Loading chart data...</div>
+                <div className="flex items-center justify-center h-full text-blue-400">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-400 mr-3"></div>
+                  Loading chart data...
                 </div>
               ) : error ? (
-                <div className="text-center text-red-400 p-8">Error: {error}</div>
+                <div className="text-center text-red-400 p-8 flex items-center justify-center">
+                  <svg className="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  Error: {error}
+                </div>
               ) : (
                 <BarChartComponent 
                   data={barChartData}

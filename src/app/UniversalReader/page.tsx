@@ -184,7 +184,14 @@ const UniversalReader: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-900 text-white font-sans flex flex-col items-center p-4 sm:p-6 lg:p-8">
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-blue-900 to-purple-900 text-white font-sans flex flex-col items-center p-4 sm:p-6 lg:p-8 relative overflow-hidden">
+      {/* Animated background elements */}
+      <div className="absolute inset-0 overflow-hidden">
+        <div className="absolute -top-40 -right-40 w-80 h-80 bg-blue-500/10 rounded-full blur-3xl animate-pulse"></div>
+        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-purple-500/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-blue-600/5 rounded-full blur-3xl animate-pulse delay-500"></div>
+      </div>
+      
       {showVisualizations && (
         <KnowledgeGraphViewer 
           workspaceId={universalWorkspaceId} 
@@ -192,14 +199,24 @@ const UniversalReader: React.FC = () => {
           initialActiveTab={activeVisualizationTab}
         />
       )}
-      <div className="bg-gray-800 rounded-xl shadow-2xl w-full max-w-6xl flex flex-col overflow-hidden h-[90vh] border border-gray-700">
-        <div className="p-6 border-b border-gray-700 bg-gray-700">
-          <div className="text-center mb-4">
-            <h2 className="text-3xl font-extrabold text-blue-300">Universal Document Reader</h2>
-            <p className="text-sm text-gray-400 mt-1">Upload any file, ask questions, get instant, cited answers.</p>
+      <div className="bg-white/10 backdrop-blur-xl rounded-3xl shadow-2xl w-full max-w-7xl flex flex-col overflow-hidden h-[90vh] border border-white/20 relative z-10">
+        <div className="p-6 border-b border-white/20 bg-white/5 backdrop-blur-sm">
+          <div className="text-center mb-6">
+            <div className="flex items-center justify-center mb-4">
+              <div className="w-12 h-12 bg-gradient-to-br from-purple-400 to-purple-600 rounded-2xl flex items-center justify-center mr-4">
+                <svg className="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+              </div>
+              <h2 className="text-4xl font-extrabold text-white">Universal Document Reader</h2>
+            </div>
+            <p className="text-lg text-blue-200 max-w-2xl mx-auto">Upload any file, ask questions, get instant, cited answers powered by advanced AI.</p>
           </div>
-          <div className="flex justify-center space-x-4 mt-3">
-            <label className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg cursor-pointer transition-colors">
+          <div className="flex flex-col sm:flex-row justify-center items-center space-y-3 sm:space-y-0 sm:space-x-6">
+            <label className="group bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white px-6 py-3 rounded-xl cursor-pointer transition-all duration-200 shadow-lg transform hover:scale-105 flex items-center">
+              <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+              </svg>
               Upload Files
               <input type="file" multiple className="hidden" onChange={handleFileUpload} />
             </label>
@@ -209,19 +226,25 @@ const UniversalReader: React.FC = () => {
                   setActiveVisualizationTab('chart');
                   setShowVisualizations(true);
                 }}
-                className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg transition-colors"
+                className="group bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white px-6 py-3 rounded-xl transition-all duration-200 shadow-lg transform hover:scale-105 flex items-center"
               >
+                <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                </svg>
                 View Visualizations
               </button>
-              <div className="absolute right-0 mt-1 w-48 bg-white text-gray-800 rounded-md shadow-lg py-1 z-10 hidden group-hover:block">
+              <div className="absolute right-0 mt-1 w-56 bg-white/90 backdrop-blur-sm text-gray-800 rounded-xl shadow-2xl py-2 z-10 hidden group-hover:block border border-white/20">
                 <button 
                   onClick={(e) => {
                     e.stopPropagation();
                     setActiveVisualizationTab('chart');
                     setShowVisualizations(true);
                   }}
-                  className="block w-full text-left px-4 py-2 text-sm hover:bg-gray-100"
+                  className="block w-full text-left px-4 py-3 text-sm hover:bg-blue-50 transition-colors duration-200 flex items-center"
                 >
+                  <svg className="w-4 h-4 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                  </svg>
                   View Relationship Chart
                 </button>
                 <button 
@@ -230,8 +253,11 @@ const UniversalReader: React.FC = () => {
                     setActiveVisualizationTab('graph');
                     setShowVisualizations(true);
                   }}
-                  className="block w-full text-left px-4 py-2 text-sm hover:bg-gray-100"
+                  className="block w-full text-left px-4 py-3 text-sm hover:bg-purple-50 transition-colors duration-200 flex items-center"
                 >
+                  <svg className="w-4 h-4 mr-2 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                  </svg>
                   View Knowledge Graph
                 </button>
               </div>
@@ -239,10 +265,15 @@ const UniversalReader: React.FC = () => {
           </div>
         </div>
         <div className="flex-grow flex flex-col md:flex-row overflow-hidden">
-          <div className="w-full md:w-1/4 p-6 border-b md:border-b-0 md:border-r border-gray-700 flex flex-col bg-gray-800">
-            <h3 className="text-xl font-bold text-gray-200 mb-4">Uploaded Files</h3>
+          <div className="w-full md:w-1/4 p-6 border-b md:border-b-0 md:border-r border-white/20 flex flex-col bg-white/5 backdrop-blur-sm">
+            <h3 className="text-xl font-bold text-white mb-4 flex items-center">
+              <svg className="w-5 h-5 mr-2 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+              </svg>
+              Uploaded Files
+            </h3>
             <div className="mb-4">
-              <label htmlFor="file-upload" className="block text-sm font-medium text-gray-300 mb-2">
+              <label htmlFor="file-upload" className="block text-sm font-medium text-blue-200 mb-3">
                 Drag & Drop or Choose Files
               </label>
               <input
@@ -251,36 +282,46 @@ const UniversalReader: React.FC = () => {
                 multiple
                 accept=".pdf,.doc,.docx,.csv,.xlsx,.txt"
                 onChange={handleFileUpload}
-                className="block w-full text-sm text-gray-300
+                className="block w-full text-sm text-white
                            file:mr-4 file:py-2 file:px-4
                            file:rounded-full file:border-0
                            file:text-sm file:font-semibold
-                           file:bg-blue-500 file:text-white
-                           hover:file:bg-blue-600 cursor-pointer rounded-lg border border-gray-600 p-2"
+                           file:bg-blue-600 file:text-white
+                           hover:file:bg-blue-700 cursor-pointer rounded-lg border border-white/30 bg-white/10 p-3 backdrop-blur-sm
+                           focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all duration-200"
                 disabled={isProcessingFiles}
               />
               {isProcessingFiles && (
-                <p className="mt-2 text-sm text-blue-400 animate-pulse">Processing files, please wait...</p>
+                <div className="mt-3 flex items-center text-sm text-blue-300">
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-400 mr-2"></div>
+                  Processing files, please wait...
+                </div>
               )}
             </div>
-            <div className="flex-grow bg-gray-700 rounded-lg p-4 overflow-y-auto shadow-inner border border-gray-600">
+            <div className="flex-grow bg-white/5 backdrop-blur-sm rounded-xl p-4 overflow-y-auto shadow-inner border border-white/20">
               {uploadedFiles.length === 0 ? (
-                <p className="text-gray-400 text-sm">No files uploaded yet.</p>
+                <div className="text-center py-8">
+                  <svg className="w-12 h-12 text-blue-400/50 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                  </svg>
+                  <p className="text-blue-200/70 text-sm">No files uploaded yet.</p>
+                  <p className="text-blue-200/50 text-xs mt-1">Upload documents to get started</p>
+                </div>
               ) : (
                 <ul className="space-y-2">
                   {uploadedFiles.map((file) => (
-                    <li key={file.id} className="bg-gray-600 p-3 rounded-lg flex justify-between items-center text-sm shadow-sm">
+                    <li key={file.id} className="bg-white/10 backdrop-blur-sm p-3 rounded-lg flex justify-between items-center text-sm shadow-sm border border-white/20 hover:bg-white/20 transition-all duration-200">
                       <div>
-                        <span className="font-medium text-gray-100">{file.name}</span>
-                        <p className="text-xs text-gray-400">
+                        <span className="font-medium text-white">{file.name}</span>
+                        <p className="text-xs text-blue-200">
                           {file.size > 1024 * 1024 ? `${(file.size / (1024 * 1024)).toFixed(2)} MB` : `${(file.size / 1024).toFixed(2)} KB`}
                         </p>
                       </div>
                       <span className={`text-xs px-2 py-1 rounded-full ${
-                        file.status === 'processed' ? 'bg-green-500 text-white' :
-                        file.status === 'processing' ? 'bg-blue-500 text-white animate-pulse' :
-                        file.status === 'failed' ? 'bg-red-500 text-white' :
-                        'bg-gray-500 text-white'
+                        file.status === 'processed' ? 'bg-green-500/80 text-white border border-green-400/50' :
+                        file.status === 'processing' ? 'bg-blue-500/80 text-white animate-pulse border border-blue-400/50' :
+                        file.status === 'failed' ? 'bg-red-500/80 text-white border border-red-400/50' :
+                        'bg-gray-500/80 text-white border border-gray-400/50'
                       }`}>
                         {file.status.toUpperCase()}
                       </span>
@@ -290,41 +331,76 @@ const UniversalReader: React.FC = () => {
               )}
             </div>
           </div>
-          <div className="w-full md:w-3/4 flex flex-col p-6 bg-gray-800">
-            <h3 className="text-xl font-bold text-gray-200 mb-4 text-center">Contextual Q&A</h3>
-            <div ref={chatContainerRef} className="flex-grow bg-gray-700 p-4 rounded-lg overflow-y-auto shadow-inner mb-4 border border-gray-600">
+          <div className="w-full md:w-3/4 flex flex-col p-6 bg-white/5 backdrop-blur-sm">
+            <h3 className="text-xl font-bold text-white mb-4 text-center flex items-center justify-center">
+              <svg className="w-6 h-6 mr-2 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+              </svg>
+              Contextual Q&A
+            </h3>
+            <div ref={chatContainerRef} className="flex-grow bg-white/5 backdrop-blur-sm p-4 rounded-xl overflow-y-auto shadow-inner mb-4 border border-white/20">
               {messages.length === 0 ? (
-                <p className="text-gray-400 text-center text-sm">Upload files and ask questions about their content!</p>
+                <div className="text-center py-12">
+                  <svg className="w-16 h-16 text-purple-400/50 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                  </svg>
+                  <p className="text-blue-200/70 text-lg">Upload files and ask questions about their content!</p>
+                  <p className="text-blue-200/50 text-sm mt-2">Get instant, AI-powered insights from your documents</p>
+                </div>
               ) : (
                 messages.map((msg) => (
                   <div key={msg.id} className={`mb-4 flex ${msg.type === 'user' ? 'justify-end' : 'justify-start'}`}>
                     <div className={`max-w-[80%] p-3 rounded-xl shadow-md ${
-                      msg.type === 'user' ? 'bg-blue-600 text-white rounded-br-none' : 'bg-gray-600 text-gray-100 rounded-bl-none'
+                      msg.type === 'user' 
+                        ? 'bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-br-none shadow-lg' 
+                        : msg.type === 'system'
+                        ? 'bg-gradient-to-r from-purple-600/80 to-purple-700/80 text-white rounded-lg backdrop-blur-sm'
+                        : 'bg-white/20 backdrop-blur-sm text-white rounded-bl-none border border-white/30'
                     }`}>
-                      <span className="font-semibold text-xs opacity-80 mb-1 block">
-                        {msg.type === 'user' ? 'You' : 'AI'} <span className="font-normal text-gray-400">at {msg.timestamp}</span>
+                      <span className="font-semibold text-xs opacity-90 mb-1 block flex items-center">
+                        <div className="w-2 h-2 bg-current rounded-full mr-2 opacity-60"></div>
+                        {msg.type === 'user' ? 'You' : msg.type === 'system' ? 'System' : 'AI'} 
+                        <span className="font-normal opacity-70 ml-2">at {msg.timestamp}</span>
                       </span>
                       {msg.loading ? (
-                        <span className="animate-pulse">Typing...</span>
+                        <div className="flex items-center">
+                          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                          <span className="animate-pulse">Typing...</span>
+                        </div>
                       ) : (
                         <>
                           {msg.content?.analysisText && (<p className="mb-2">{msg.content.analysisText}</p>)}
-                          {msg.content?.chartData && (<div className="bg-gray-800 p-3 rounded-lg mt-2 mb-2 border border-gray-600">
-                              <p className="font-medium text-blue-300">Chart Placeholder:</p>
-                              <p className="text-sm text-gray-300 italic">{msg.content.chartData}</p>
-                              <div className="w-full h-32 bg-gray-700 rounded-md flex items-center justify-center text-gray-500 text-xs mt-2">
+                          {msg.content?.chartData && (<div className="bg-white/10 backdrop-blur-sm p-3 rounded-lg mt-2 mb-2 border border-white/30">
+                              <p className="font-medium text-blue-300 flex items-center">
+                                <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                                </svg>
+                                Chart Data:
+                              </p>
+                              <p className="text-sm text-blue-200 italic">{msg.content.chartData}</p>
+                              <div className="w-full h-32 bg-white/5 rounded-md flex items-center justify-center text-blue-200/70 text-xs mt-2 border border-white/20">
                                 [Visual Chart Rendered Here by Backend/Library]
                               </div>
                             </div>)}
-                          {msg.content?.sources && msg.content.sources.length > 0 && (<div className="mt-2 text-xs text-gray-300">
-                              <p className="font-semibold mb-1">Sources:</p>
+                          {msg.content?.sources && msg.content.sources.length > 0 && (<div className="mt-2 text-xs text-blue-200 border-t border-white/20 pt-2">
+                              <p className="font-semibold mb-1 flex items-center">
+                                <svg className="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+                                </svg>
+                                Sources:
+                              </p>
                               <ul className="list-disc list-inside">
                                 {msg.content.sources.map((source, idx) => (<li key={idx} className="mb-0.5">{source}</li>))}
                               </ul>
                             </div>)}
-                          {msg.content?.nextSteps && msg.content.nextSteps.length > 0 && (<div className="mt-3 p-3 bg-gray-800 rounded-lg border border-yellow-500 shadow-md">
-                              <p className="font-semibold text-yellow-300 mb-1">Suggested Next Steps:</p>
-                              <ul className="list-disc list-inside text-sm text-gray-200">
+                          {msg.content?.nextSteps && msg.content.nextSteps.length > 0 && (<div className="mt-3 p-3 bg-yellow-500/20 backdrop-blur-sm rounded-lg border border-yellow-400/50 shadow-md">
+                              <p className="font-semibold text-yellow-300 mb-1 flex items-center">
+                                <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                                </svg>
+                                Suggested Next Steps:
+                              </p>
+                              <ul className="list-disc list-inside text-sm text-yellow-100">
                                 {msg.content.nextSteps.map((step, idx) => (<li key={idx} className="mb-0.5">{step}</li>))}
                               </ul>
                             </div>)}
@@ -336,22 +412,24 @@ const UniversalReader: React.FC = () => {
                 ))
               )}
             </div>
-            <div className="flex items-center">
+            <div className="flex items-center space-x-3">
               <input
                 type="text"
                 value={inputMessage}
                 onChange={(e) => setInputMessage(e.target.value)}
                 onKeyPress={handleKeyPress}
                 placeholder={isProcessingFiles ? "Please wait for files to process..." : "Ask a question about your documents..."}
-                className="flex-grow p-3 border border-gray-600 rounded-l-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-700 text-white placeholder-gray-400"
+                className="flex-grow p-4 border border-white/30 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent bg-white/10 backdrop-blur-sm text-white placeholder-blue-200/70 transition-all duration-200"
                 disabled={isProcessingFiles}
               />
               <button
                 onClick={handleSendMessage}
-                className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-r-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-bold py-4 px-6 rounded-xl transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-400 shadow-lg transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
                 disabled={isProcessingFiles || inputMessage.trim() === '' || uploadedFiles.filter(f => f.status === 'processed').length === 0}
               >
-                Ask AI
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+                </svg>
               </button>
             </div>
           </div>
