@@ -33,25 +33,25 @@ const Hero = () => {
       title: "Solo Users",
       description: "Stay focused. Write notes, drop PDFs, and get intelligent summaries & tasks — all in one place.",
       link: "/SoleUser",
-      imageUrl: "/sample.png",
+      imageUrl: "/SoleAgent.jpg",
     },
     {
       title: "Team Collaboration",
       description: "Share insights, collaborate on documents, and streamline workflows with your team seamlessly.",
       link: "/TeamCollaborations",
-      imageUrl: "/images/team-collaboration.png", 
+      imageUrl: "/Team.jpg", 
     },
     {
       title: "Developers & AI Agents",
       description: "Build custom AI agents, integrate with APIs, and extend CortexHub's capabilities with ease.",
       link: "/Ai-Agents",
-      imageUrl: "/images/developers-ai-agents.png", 
+      imageUrl: "/Agent.jpg", 
     },
     {
       title: "Researchers & Analysts",
       description: "Process large datasets, generate reports, and uncover hidden patterns with advanced tools.",
       link: "/UniversalReader",
-      imageUrl: "/images/researchers-analysts.png",
+      imageUrl: "/knowledge.jpg",
     },
   ];
 
