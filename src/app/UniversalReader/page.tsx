@@ -1,6 +1,8 @@
 "use client";
 
 import React, { useState, useRef, useEffect } from 'react';
+import KnowledgeGraphViewer from '../../components/knowledgeGraphViewer';
+
 
 // --- Type Definitions ---
 interface UploadedFile {
@@ -33,6 +35,7 @@ const UniversalReader: React.FC = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputMessage, setInputMessage] = useState<string>('');
   const [isProcessingFiles, setIsProcessingFiles] = useState<boolean>(false);
+  const [showKnowledgeGraph, setShowKnowledgeGraph]=useState<boolean>(false);
   const chatContainerRef = useRef<HTMLDivElement>(null);
   // Hardcoded ID for this workspace, matches backend placeholder
   const universalWorkspaceId = "universal-reader-workspace-id-002";
@@ -181,6 +184,12 @@ const UniversalReader: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gray-900 text-white font-sans flex flex-col items-center p-4 sm:p-6 lg:p-8">
+      {showKnowledgeGraph && (
+        <KnowledgeGraphViewer
+          workspaceId={universalWorkspaceId}
+          onClose={() => setShowKnowledgeGraph(false)}
+        />
+      )}
       <div className="bg-gray-800 rounded-xl shadow-2xl w-full max-w-6xl flex flex-col overflow-hidden h-[90vh] border border-gray-700">
         <div className="p-6 border-b border-gray-700 text-center bg-gray-700">
           <h2 className="text-3xl font-extrabold text-blue-300">Universal Document Reader</h2>

@@ -3,6 +3,7 @@
 "use client";
 
 import React, { useState, useRef, useEffect } from 'react';
+import KnowledgeGraphViewer from '../../components/knowledgeGraphViewer';
 
 // --- Type Definitions ---
 interface Message {
@@ -39,6 +40,7 @@ const TeamWorkspace: React.FC = () => {
   const [inviteLinkInput, setInviteLinkInput] = useState<string>('');
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputMessage, setInputMessage] = useState<string>('');
+  const [showKnowledgeGraph, setShowKnowledgeGraph] = useState<boolean>(false);
   const [uploadingFile, setUploadingFile] = useState<boolean>(false);
   const chatContainerRef = useRef<HTMLDivElement>(null);
   const currentUser = "User A"; // Simulate current user
@@ -304,6 +306,12 @@ const TeamWorkspace: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gray-900 text-white font-sans flex flex-col items-center p-4 sm:p-6 lg:p-8">
+      {showKnowledgeGraph && currentWorkspace && ( // My Comment: Conditionally render the graph viewer
+        <KnowledgeGraphViewer
+          workspaceId={currentWorkspace.id}
+          onClose={() => setShowKnowledgeGraph(false)}
+        />
+      )}
       <div className="bg-gray-800 rounded-xl shadow-2xl w-full max-w-6xl flex flex-col overflow-hidden h-[90vh] border border-gray-700">
 
         {/* Top Bar: Workspace Info / Creation */}
