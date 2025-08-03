@@ -35,7 +35,8 @@ const UniversalReader: React.FC = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputMessage, setInputMessage] = useState<string>('');
   const [isProcessingFiles, setIsProcessingFiles] = useState<boolean>(false);
-  const [showKnowledgeGraph, setShowKnowledgeGraph]=useState<boolean>(false);
+  const [showVisualizations, setShowVisualizations] = useState<boolean>(false);
+  const [activeVisualizationTab, setActiveVisualizationTab] = useState<'graph' | 'chart'>('chart');
   const chatContainerRef = useRef<HTMLDivElement>(null);
   // Hardcoded ID for this workspace, matches backend placeholder
   const universalWorkspaceId = "universal-reader-workspace-id-002";
@@ -184,16 +185,58 @@ const UniversalReader: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gray-900 text-white font-sans flex flex-col items-center p-4 sm:p-6 lg:p-8">
-      {showKnowledgeGraph && (
-        <KnowledgeGraphViewer
-          workspaceId={universalWorkspaceId}
-          onClose={() => setShowKnowledgeGraph(false)}
+      {showVisualizations && (
+        <KnowledgeGraphViewer 
+          workspaceId={universalWorkspaceId} 
+          onClose={() => setShowVisualizations(false)}
+          initialActiveTab={activeVisualizationTab}
         />
       )}
       <div className="bg-gray-800 rounded-xl shadow-2xl w-full max-w-6xl flex flex-col overflow-hidden h-[90vh] border border-gray-700">
-        <div className="p-6 border-b border-gray-700 text-center bg-gray-700">
-          <h2 className="text-3xl font-extrabold text-blue-300">Universal Document Reader</h2>
-          <p className="text-sm text-gray-400 mt-1">Upload any file, ask questions, get instant, cited answers.</p>
+        <div className="p-6 border-b border-gray-700 bg-gray-700">
+          <div className="text-center mb-4">
+            <h2 className="text-3xl font-extrabold text-blue-300">Universal Document Reader</h2>
+            <p className="text-sm text-gray-400 mt-1">Upload any file, ask questions, get instant, cited answers.</p>
+          </div>
+          <div className="flex justify-center space-x-4 mt-3">
+            <label className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg cursor-pointer transition-colors">
+              Upload Files
+              <input type="file" multiple className="hidden" onChange={handleFileUpload} />
+            </label>
+            <div className="relative group">
+              <button 
+                onClick={() => {
+                  setActiveVisualizationTab('chart');
+                  setShowVisualizations(true);
+                }}
+                className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg transition-colors"
+              >
+                View Visualizations
+              </button>
+              <div className="absolute right-0 mt-1 w-48 bg-white text-gray-800 rounded-md shadow-lg py-1 z-10 hidden group-hover:block">
+                <button 
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setActiveVisualizationTab('chart');
+                    setShowVisualizations(true);
+                  }}
+                  className="block w-full text-left px-4 py-2 text-sm hover:bg-gray-100"
+                >
+                  View Relationship Chart
+                </button>
+                <button 
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setActiveVisualizationTab('graph');
+                    setShowVisualizations(true);
+                  }}
+                  className="block w-full text-left px-4 py-2 text-sm hover:bg-gray-100"
+                >
+                  View Knowledge Graph
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
         <div className="flex-grow flex flex-col md:flex-row overflow-hidden">
           <div className="w-full md:w-1/4 p-6 border-b md:border-b-0 md:border-r border-gray-700 flex flex-col bg-gray-800">
