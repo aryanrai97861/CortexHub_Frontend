@@ -13,9 +13,9 @@ const FeatureCard = ({ title, description, link, imageUrl }: { title: string; de
   return (
     <a
       href={link}
-      className="group block bg-white/10 backdrop-blur-sm p-6 sm:p-8 rounded-3xl shadow-2xl hover:shadow-3xl transition-all duration-500 transform hover:-translate-y-2 hover:scale-105 border border-white/20 hover:border-blue-400/50
+      className="group block bg-white/10 backdrop-blur-sm p-8 sm:p-10 rounded-3xl shadow-2xl hover:shadow-3xl transition-all duration-500 transform hover:-translate-y-2 hover:scale-105 border border-white/20 hover:border-blue-400/50
                  text-current no-underline focus:outline-none focus:ring-4 focus:ring-blue-400 focus:ring-opacity-50 relative overflow-hidden"
-      aria-label={`Learn more about ${title}`} // Good for accessibility
+      aria-label={`Learn more about ${title}`}
     >
       {/* Animated background gradient */}
       <div className="absolute inset-0 bg-gradient-to-br from-blue-600/20 via-purple-600/10 to-blue-800/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
@@ -24,22 +24,22 @@ const FeatureCard = ({ title, description, link, imageUrl }: { title: string; de
       <div className="relative z-10">
         {/* Image */}
         {imageUrl && (
-          <div className="mb-8 flex justify-center overflow-hidden rounded-2xl"> {/* Increased margin-bottom for spacing */}
+          <div className="mb-10 flex justify-center overflow-hidden rounded-2xl">
             <Image
               src={imageUrl}
               alt={title}
               width={1024}
               height={786}
-              className="w-full h-48 sm:h-56 object-cover rounded-2xl transform group-hover:scale-110 transition-transform duration-700" // Slightly increased image size
-              onError={(e) => { e.currentTarget.src = 'https://placehold.co/1080x720/E0E0E0/333333?text=Image'; }} // Fallback image
+              className="w-full h-64 sm:h-72 lg:h-80 object-cover rounded-2xl transform group-hover:scale-110 transition-transform duration-700"
+              onError={(e) => { e.currentTarget.src = 'https://placehold.co/1080x720/E0E0E0/333333?text=Image'; }}
             />
           </div>
         )}
-        <h3 className="text-2xl sm:text-3xl font-bold text-white mb-4 group-hover:text-blue-300 transition-colors duration-300">{title}</h3>
-        <p className="text-base sm:text-lg text-blue-100 leading-relaxed group-hover:text-white transition-colors duration-300">{description}</p>
+        <h3 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-white mb-6 group-hover:text-blue-300 transition-colors duration-300">{title}</h3>
+        <p className="text-base sm:text-lg lg:text-xl text-blue-100 leading-relaxed group-hover:text-white transition-colors duration-300 mb-8">{description}</p>
 
         {/* Arrow icon */}
-        <div className="mt-6 flex items-center text-blue-400 group-hover:text-blue-300 transition-colors duration-300">
+        <div className="mt-8 flex items-center text-blue-400 group-hover:text-blue-300 transition-colors duration-300">
           <span className="text-sm font-medium mr-2">Explore</span>
           <svg className="w-5 h-5 transform group-hover:translate-x-1 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
@@ -154,7 +154,7 @@ const Hero = () => {
           </div>
 
           {/* Cards Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-12 xl:gap-16">
             {featureData.map((feature, index) => (
               <FeatureCard
                 key={index}
