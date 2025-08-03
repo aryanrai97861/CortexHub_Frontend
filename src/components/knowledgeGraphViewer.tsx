@@ -39,12 +39,7 @@ const KnowledgeGraphViewer: React.FC<KnowledgeGraphViewerProps> = ({ workspaceId
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<'graph' | 'chart'>(initialActiveTab);
-
-  useEffect(() => {
-    // Automatically generate the graph when the component mounts
-    generateGraph();
-  }, [workspaceId]);
-
+  
   const generateGraph = async () => {
     setLoading(true);
     setError(null);
@@ -63,12 +58,17 @@ const KnowledgeGraphViewer: React.FC<KnowledgeGraphViewerProps> = ({ workspaceId
 
       const data = await response.json();
       setGraphData(data);
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : String(err));
     } finally {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    // Automatically generate the graph when the component mounts
+    generateGraph();
+  }, []); // Remove workspaceId from dependencies as suggested by the warning
 
   const renderGraph = () => {
     if (loading) {

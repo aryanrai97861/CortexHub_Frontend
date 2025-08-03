@@ -34,6 +34,15 @@ interface Workspace {
   files: UploadedFile[];
 }
 
+interface FileDocument {
+  _id: string;
+  filename: string;
+  uploadedAt: string;
+  ownerId?: string;
+  originalType: string;
+}
+
+
 const TeamWorkspace: React.FC = () => {
   const [currentWorkspace, setCurrentWorkspace] = useState<Workspace | null>(null);
   const [workspaceNameInput, setWorkspaceNameInput] = useState<string>('');
@@ -93,11 +102,11 @@ const TeamWorkspace: React.FC = () => {
         },
       ]);
       setWorkspaceNameInput('');
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error creating workspace:', error);
       setMessages((prev) => [
         ...prev,
-        { id: `msg-${Date.now()}-error`, type: 'system', text: `Error creating workspace: ${error.message}`, timestamp: new Date().toLocaleTimeString(), sender: 'System' },
+        { id: `msg-${Date.now()}-error`, type: 'system', text: `Error creating workspace: ${error instanceof Error ? error.message:String(error)}`, timestamp: new Date().toLocaleTimeString(), sender: 'System' },
       ]);
     }
   };
@@ -133,7 +142,7 @@ const TeamWorkspace: React.FC = () => {
       // For this example, we'll simulate fetching documents as well.
       const filesResponse = await fetch(`http://localhost:5000/api/workspaces/${data.workspaceId}/documents`);
       const filesData = await filesResponse.json();
-      joinedWorkspace.files = filesData.documents.map((doc: any) => ({
+      joinedWorkspace.files = filesData.documents.map((doc: FileDocument) => ({
         id: doc._id,
         name: doc.filename,
         uploadedBy: doc.ownerId || 'Unknown',
@@ -153,11 +162,11 @@ const TeamWorkspace: React.FC = () => {
         },
       ]);
       setInviteLinkInput('');
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error joining workspace:', error);
       setMessages((prev) => [
         ...prev,
-        { id: `msg-${Date.now()}-error`, type: 'system', text: `Error joining workspace: ${error.message}`, timestamp: new Date().toLocaleTimeString(), sender: 'System' },
+        { id: `msg-${Date.now()}-error`, type: 'system', text: `Error joining workspace: ${error instanceof Error ? error.message:String(error)}`, timestamp: new Date().toLocaleTimeString(), sender: 'System' },
       ]);
     }
   };
@@ -201,11 +210,11 @@ const TeamWorkspace: React.FC = () => {
         ...prev,
         { id: `msg-${Date.now()}-success`, type: 'system', text: `"${newFile.name}" uploaded by ${currentUser} and processed successfully!`, timestamp: new Date().toLocaleTimeString(), sender: 'System' },
       ]);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("File upload error:", error);
       setMessages((prev) => [
         ...prev,
-        { id: `msg-${Date.now()}-error`, type: 'system', text: `Error uploading "${file.name}": ${error.message || 'Unknown error'}`, timestamp: new Date().toLocaleTimeString(), sender: 'System' },
+        { id: `msg-${Date.now()}-error`, type: 'system', text: `Error uploading "${file.name}": ${error instanceof Error ? error.message || 'Unknown error':String(error)}`, timestamp: new Date().toLocaleTimeString(), sender: 'System' },
       ]);
     } finally {
       setUploadingFile(false);
@@ -248,12 +257,12 @@ const TeamWorkspace: React.FC = () => {
         sources: aiSources,
         threadId: lastMessageId || `thread-${Date.now()}`,
       };
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("AI chat error:", error);
       return {
         id: `msg-${Date.now()}`,
         type: 'ai',
-        text: `Error: ${error.message || 'Could not get a response from AI.'}`,
+        text: `Error: ${error instanceof Error ? error.message || 'Could not get a response from AI.':String(error)}`,
         timestamp: new Date().toLocaleTimeString(),
         sender: 'AI',
         threadId: lastMessageId,
@@ -487,7 +496,7 @@ const TeamWorkspace: React.FC = () => {
                   <p className="text-blue-200/50 text-sm mt-2">Collaborate with your team using AI-powered insights</p>
                 </div>
               ) : (
-                messages.map((msg, index) => (
+                messages.map((msg) => (
                   <div
                     key={msg.id}
                     className={`flex mb-4 ${msg.type === 'user' ? 'justify-end' : 'justify-start'} ${msg.isReply ? 'ml-8' : ''}`}

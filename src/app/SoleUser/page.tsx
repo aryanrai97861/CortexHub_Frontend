@@ -56,9 +56,9 @@ const SoleUser: React.FC = () => {
       const data = await response.json();
       setProcessedDocumentId(data.documentId);
       setMessages((prevMessages) => [...prevMessages, { type: 'system', text: `PDF "${file.name}" processed successfully! Document ID: ${data.documentId}` }]);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("PDF upload error:", error);
-      setMessages((prevMessages) => [...prevMessages, { type: 'system', text: `Error processing PDF: ${error.message || 'Unknown error'}` }]);
+      setMessages((prevMessages) => [...prevMessages, { type: 'system', text: `Error processing PDF: ${error instanceof Error ? error.message || 'Unknown error':String(error)}` }]);
       setPdfFile(null);
       setProcessedDocumentId(null);
     } finally {
@@ -86,9 +86,9 @@ const SoleUser: React.FC = () => {
 
       const data = await response.json();
       return data.answer + (data.citations ? ` (Sources: ${data.citations.join(', ')})` : '');
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("AI chat error:", error);
-      return `Error: ${error.message || 'Could not get a response from AI.'}`;
+      return `Error: ${error instanceof Error ? error.message || 'Could not get a response from AI.':String(error)}`;
     }
   };
 

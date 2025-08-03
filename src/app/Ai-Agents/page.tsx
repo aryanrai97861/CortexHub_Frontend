@@ -52,7 +52,7 @@ const AgentBuilder: React.FC = () => {
         }
         return [...updatedLog, ...data.log]; // Add the full log from the backend
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Agent execution error:", error);
       setAgentLog((prev) => {
         const updatedLog = [...prev];
@@ -60,7 +60,7 @@ const AgentBuilder: React.FC = () => {
         if (loadingIndex !== -1) {
           updatedLog.splice(loadingIndex, 1);
         }
-        return [...updatedLog, { id: `log-${Date.now()}-error`, type: 'error', text: `Agent execution failed: ${error.message}`, timestamp: new Date().toLocaleTimeString() }];
+        return [...updatedLog, { id: `log-${Date.now()}-error`, type: 'error', text: `Agent execution failed: ${error instanceof Error ? error.message:String(error)}`, timestamp: new Date().toLocaleTimeString() }];
       });
     } finally {
       setIsAgentRunning(false);

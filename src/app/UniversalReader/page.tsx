@@ -95,16 +95,17 @@ const UniversalReader: React.FC = () => {
         );
         // Added unique ID for each message to avoid key conflicts
         setMessages((prev) => [...prev, { id: `msg-${Date.now()}-${file.name}-success`, type: 'system', text: `"${file.name}" processed successfully!`, timestamp: new Date().toLocaleTimeString() }]);
-      } catch (error: any) {
+      } catch (error: unknown) {
         console.error("File upload error:", error);
         setUploadedFiles((prev) => prev.map((f) => (f.name === file.name ? { ...f, status: 'failed' } : f)));
         // Ensure messages are updated in a closure that prevents stale state issues.
-        setMessages((prevMessages) => [...prevMessages, { id: `msg-${Date.now()}-${file.name}-error`, type: 'system', text: `Error processing "${file.name}": ${error.message || 'Unknown error'}`, timestamp: new Date().toLocaleTimeString() }]);
+        setMessages((prevMessages) => [...prevMessages, { id: `msg-${Date.now()}-${file.name}-error`, type: 'system', text: `Error processing "${file.name}": ${error instanceof Error ? error.message || 'Unknown error':String(error)}`, timestamp: new Date().toLocaleTimeString() }]);
       }
     }
     setIsProcessingFiles(false);
   };
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const getAiResponse = async (userQuery: string): Promise<any> => {
     try {
       const payload = {
@@ -123,9 +124,9 @@ const UniversalReader: React.FC = () => {
         throw new Error(errorData.message || 'Failed to get AI response.');
       }
       return await response.json();
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("AI chat error:", error);
-      return { answer: `Error: ${error.message || 'Could not get a response from AI.'}`, citations: [], nextSteps: [] };
+      return { answer: `Error: ${error instanceof Error ? error.message || 'Could not get a response from AI.':String(error)}`, citations: [], nextSteps: [] };
     }
   };
 
